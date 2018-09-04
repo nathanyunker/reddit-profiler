@@ -12,9 +12,8 @@ const r = new Snoowrap({
 });
 
 exports.get_saved_posts = function(req, res) {
-    const titles = [];
+    const savedPosts = {};
     let statusCode = 200;
-    let lastId = '';
     let baseUri = `user/${process.env.REDDIT_USER}/saved?limit=100`;
 
     function getSavedPosts(startingPoint) {
@@ -23,14 +22,24 @@ exports.get_saved_posts = function(req, res) {
         r._get({uri})
             .then(results => {
                 _.forEach(results, result => {
-                    titles.push(result.title);
+                    const post = {
+                        title: result.title,
+                        subreddit: result.subreddit.display_name,
+                        author: result.author.name,
+                        permalink: result.permalink,
+                        url: result.url
+                    };
+
+                    let subreddit = result.subreddit.display_name;
+                    savedPosts[subreddit] = savedPosts[subreddit] || {};
+                    savedPosts[subreddit][result.author.name] = post;
                 })
 
                 if (results.length == 100) {
                     console.log('Polling another page with this id', _.last(results).id);
                     getSavedPosts(_.last(results).id);
                 } else {
-                    res.json(statusCode, {"titles": titles});
+                    res.json(statusCode, {"saved_posts": savedPosts});
                 }
     
             })
