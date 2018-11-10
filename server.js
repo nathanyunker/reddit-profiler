@@ -1,3 +1,4 @@
+require('dotenv').config();
 let express = require('express');
 let app = express();
 let port = process.env.PORT || 3001;
@@ -8,7 +9,7 @@ console.log('CURRENT ENVIRONMENT IS------', app.settings.env);
 app.use(function (req, res, next) {
   if (app.settings.env === "production") {
     console.log('APP settings are production, allowign that origin');
-    res.setHeader('Access-Control-Allow-Origin', 'https://secret-wave-23471.herokuapp.com');
+    res.setHeader('Access-Control-Allow-Origin', `${process.env.HEROKU_ENDPOINT}'`);
   } else {
     console.log('APP settings are not production, allowign that localhost');
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
@@ -28,7 +29,7 @@ let redditRoutes = require('./api/routes/redditRoutes');
 redditRoutes(app);
 
 app.get('/', function (req, res) {
-  res.send('hello world')
+  res.send('hello reddity world')
 })
 
 let server = app.listen(port);
